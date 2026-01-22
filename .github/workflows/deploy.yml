@@ -11,6 +11,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: cd client-new && npm ci
+
+    - name: Build app
+      run: cd client-new && npm run build
+
     - name: Setup SSH key
       run: |
         mkdir -p ~/.ssh
@@ -18,9 +29,13 @@ jobs:
         chmod 600 ~/.ssh/aws-key.pem
         ssh-keyscan -H ${{ secrets.AWS_INSTANCE_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
-    - name: Restart server on AWS
+    - name: Deploy to AWS
+      run: |
+        scp -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no -r client-new/build/* ubuntu@${{ secrets.AWS_INSTANCE_IP }}:/home/ubuntu/forever-us-frontend/build/
+
+    - name: Restart server
       run: |
         ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "pm2 restart forever-us"
 
     - name: Deployment complete
-      run: echo "✅ Server restarted at http://${{ secrets.AWS_INSTANCE_IP }}"
+      run: echo "✅ Deployed at http://${{ secrets.AWS_INSTANCE_IP }}"
