@@ -1,0 +1,57 @@
+QUICK DOCKER BUILD - COPY & PASTE COMMANDS
+===========================================
+
+STEP 1: Open PowerShell
+- Press Windows Key + X
+- Click "Windows PowerShell"
+
+STEP 2: Copy and paste this entire block into PowerShell:
+
+cd "E:\Forever Us"
+docker run -it -v ${PWD}:/app node:18-alpine bash
+
+STEP 3: Inside Docker (you'll see "root@..." prompt), copy and paste:
+
+cd /app/client-new
+npm install --legacy-peer-deps
+npm run build
+exit
+
+STEP 4: Back in PowerShell, copy and paste:
+
+$keyPath = "C:\Users\Chris Annesley\Downloads\forever-us-new.pem"
+$instanceIP = "18.141.201.176"
+$user = "ubuntu"
+scp -i $keyPath -r "client-new/build/*" "${user}@${instanceIP}:/home/ubuntu/forever-us-frontend/build/"
+ssh -i $keyPath "${user}@${instanceIP}" "pm2 restart forever-us"
+
+STEP 5: Wait 3 seconds, then visit:
+
+http://18.141.201.176
+
+Done! The report button should now be visible.
+
+===========================================
+
+WHAT TO EXPECT:
+
+1. Docker downloads image (2-3 min first time)
+2. npm install runs (3-5 min)
+3. npm build runs (2-3 min)
+4. Upload to AWS (1-2 min)
+5. Server restarts
+6. App is live with report button!
+
+TOTAL TIME: 8-13 minutes
+
+===========================================
+
+IF SOMETHING GOES WRONG:
+
+- Docker not running? Open Docker Desktop
+- npm install slow? This is normal, wait for it
+- Build fails? Make sure you're in Docker (see "root@" prompt)
+- Can't upload? Check SSH key path is correct
+- App not loading? Wait 5 seconds and refresh browser
+
+===========================================

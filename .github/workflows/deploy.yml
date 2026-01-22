@@ -1,0 +1,44 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd client-new
+        npm install --legacy-peer-deps
+
+    - name: Build frontend
+      run: |
+        cd client-new
+        npm run build
+
+    - name: Setup AWS Key
+      run: |
+        mkdir -p /tmp
+        echo "${{ secrets.AWS_PEM_KEY }}" > /tmp/aws-key.pem
+        chmod 600 /tmp/aws-key.pem
+
+    - name: Deploy to AWS
+      run: |
+        scp -i /tmp/aws-key.pem -o StrictHostKeyChecking=no -r client-new/build/* ubuntu@${{ secrets.AWS_INSTANCE_IP }}:/home/ubuntu/forever-us-frontend/build/
+
+    - name: Restart server
+      run: |
+        ssh -i /tmp/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "pm2 restart forever-us"
+
+    - name: Deployment successful
+      run: echo "✅ Deployment complete! Changes live at http://${{ secrets.AWS_INSTANCE_IP }}"
