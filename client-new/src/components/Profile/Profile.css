@@ -13,14 +13,24 @@
 }
 
 .back-btn {
-  color: #667eea;
-  text-decoration: none;
-  font-size: 1.1rem;
+  background: #ff69b4;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .back-btn:hover {
-  text-decoration: underline;
+  background: #ff1493;
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+  transform: translateY(-2px);
 }
 
 .profile-header h1 {
