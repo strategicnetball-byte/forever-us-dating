@@ -38,4 +38,4 @@ jobs:
         ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "pm2 restart forever-us"
 
     - name: Deployment complete
-      run: echo "✅ Deployed at http://${{ secrets.AWS_INSTANCE_IP }}"
+      run: echo "Deployed at http://${{ secrets.AWS_INSTANCE_IP }}"
