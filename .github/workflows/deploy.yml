@@ -20,12 +20,13 @@ jobs:
     - name: Install dependencies
       run: |
         cd client-new
+        rm -rf node_modules package-lock.json
         npm install --legacy-peer-deps
 
     - name: Build frontend
       run: |
         cd client-new
-        npm run build
+        npm run build 2>&1
 
     - name: Setup AWS Key
       run: |
