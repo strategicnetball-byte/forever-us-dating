@@ -7,7 +7,7 @@ node_modules/
 /coverage
 
 # Production
-/build
+# /build - We commit the built files for deployment
 /dist
 
 # Misc

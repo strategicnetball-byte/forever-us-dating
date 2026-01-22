@@ -5,29 +5,11 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Install dependencies
-      run: |
-        cd client-new
-        npm install --legacy-peer-deps --verbose 2>&1 | tail -50
-
-    - name: Check npm
-      run: npm list react-scripts 2>&1 || echo "react-scripts not found"
-
-    - name: Build frontend
-      run: |
-        cd client-new
-        npm run build 2>&1 | tail -100
 
     - name: Setup SSH key
       run: |
@@ -36,13 +18,9 @@ jobs:
         chmod 600 ~/.ssh/aws-key.pem
         ssh-keyscan -H ${{ secrets.AWS_INSTANCE_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
-    - name: Deploy to AWS
+    - name: Restart server on AWS
       run: |
-        scp -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 -r client-new/build/* ubuntu@${{ secrets.AWS_INSTANCE_IP }}:/home/ubuntu/forever-us-frontend/build/ || echo "SCP failed, continuing..."
-
-    - name: Restart server
-      run: |
-        ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@${{ secrets.AWS_INSTANCE_IP }} "cd /home/ubuntu/forever-us && pm2 restart forever-us || pm2 start index.js --name forever-us" || echo "SSH restart failed"
+        ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "cd /home/ubuntu/forever-us && pm2 restart forever-us"
 
     - name: Deployment complete
-      run: echo "Deployment workflow finished"
+      run: echo "✅ Server restarted at http://${{ secrets.AWS_INSTANCE_IP }}"
