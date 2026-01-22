@@ -20,7 +20,7 @@ jobs:
 
     - name: Restart server on AWS
       run: |
-        ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "cd /home/ubuntu/forever-us && pm2 restart forever-us"
+        ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "pm2 restart forever-us"
 
     - name: Deployment complete
       run: echo "✅ Server restarted at http://${{ secrets.AWS_INSTANCE_IP }}"
