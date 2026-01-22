@@ -22,5 +22,17 @@ jobs:
     - name: Build app
       run: cd client-new && npm run build
 
-    - name: Build complete
-      run: echo "Build successful - client-new/build/ ready"
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_PEM_KEY }}" > ~/.ssh/aws-key.pem
+        chmod 600 ~/.ssh/aws-key.pem
+        ssh-keyscan -H 18.141.201.176 >> ~/.ssh/known_hosts 2>/dev/null || true
+
+    - name: Deploy to AWS
+      run: |
+        scp -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no -r client-new/build/* ubuntu@18.141.201.176:/home/ubuntu/forever-us-frontend/build/
+
+    - name: Restart server
+      run: |
+        ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@18.141.201.176 "pm2 restart forever-us"
