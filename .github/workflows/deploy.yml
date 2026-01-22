@@ -19,12 +19,15 @@ jobs:
     - name: Install dependencies
       run: |
         cd client-new
-        npm ci --legacy-peer-deps
+        npm install --legacy-peer-deps --verbose 2>&1 | tail -50
+
+    - name: Check npm
+      run: npm list react-scripts 2>&1 || echo "react-scripts not found"
 
     - name: Build frontend
       run: |
         cd client-new
-        npx react-scripts build
+        npm run build 2>&1 | tail -100
 
     - name: Setup SSH key
       run: |
