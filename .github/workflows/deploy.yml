@@ -22,20 +22,8 @@ jobs:
     - name: Build app
       run: cd client-new && npm run build
 
-    - name: Setup SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.AWS_PEM_KEY }}" > ~/.ssh/aws-key.pem
-        chmod 600 ~/.ssh/aws-key.pem
-        ssh-keyscan -H ${{ secrets.AWS_INSTANCE_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
-
-    - name: Deploy to AWS
-      run: |
-        scp -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no -r client-new/build/* ubuntu@${{ secrets.AWS_INSTANCE_IP }}:/home/ubuntu/forever-us-frontend/build/
-
-    - name: Restart server
-      run: |
-        ssh -i ~/.ssh/aws-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.AWS_INSTANCE_IP }} "pm2 restart forever-us"
-
-    - name: Deployment complete
-      run: echo "Deployed at http://${{ secrets.AWS_INSTANCE_IP }}"
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: client-new/build/
