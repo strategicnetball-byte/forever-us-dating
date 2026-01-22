@@ -23,7 +23,7 @@ jobs:
       run: cd client-new && npm run build
 
     - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build
         path: client-new/build/
